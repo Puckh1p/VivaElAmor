@@ -7,12 +7,19 @@ public class CharacterController : MonoBehaviour
     public float velocidad;
     public float fuerzaSalto;
     public float fuerzaSaltoProlongado; // Nueva variable para el salto prolongado
-    private float movimientoHorizontal;
     public LayerMask capaPiso;
     private Rigidbody2D rigidBody;
     private BoxCollider2D boxCollider;
     private bool mirandoDerecha = true;
     private bool saltoProlongado = false; // Variable para controlar si se está realizando un salto prolongado
+
+    //SALTO PARED
+    private float inputX;
+    public Transform controladorPared;
+    public Vector3 dimensionesCajaPared;
+    public float velocidadDeslizar;
+    private bool enPared;
+    private bool deslizando;
     private void Start()
     {
         rigidBody = GetComponent<Rigidbody2D>();
@@ -20,8 +27,31 @@ public class CharacterController : MonoBehaviour
     }
     void Update()
     {
+        inputX = Input.GetAxisRaw("Horizontal"); //Parte del salto de pared
+
         ProcesarMovimiento();
         ProcesarSalto();
+
+        //Esta parte igual es del salto de pared
+        if(!EstaEnSuelo && enPared && inputX != 0)
+        {
+            deslizando = true;
+        }
+        else
+        {
+            deslizando = false;
+        }
+    }
+
+    private void FixedUpdate()
+    {
+        //Esta parte tambien
+        enPared = Physics2D.OverlapBox(controladorPared.position, dimensionesCajaPared, 0f, capaPiso);
+
+        if (deslizando)
+        {
+            rigidBody.velocity = new Vector2(rigidBody.velocity.x, Mathf.Clamp(rigidBody.velocity.y, -velocidadDeslizar, float.MaxValue));
+        }
     }
     bool EstaEnSuelo()
     {
@@ -72,6 +102,12 @@ public class CharacterController : MonoBehaviour
             transform.localScale = new Vector2(-transform.localScale.x, transform.localScale.y);
             Vector3 escala = transform.localScale;
         }
+    }
+    
+    private void OnDrawGizmos() //Parte del codigo de salto a pared
+    {
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireCube(controladorPared.position, dimensionesCajaPared);
     }
 }
 

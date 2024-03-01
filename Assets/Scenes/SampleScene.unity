@@ -1127,6 +1127,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1939397167}
+  - {fileID: 1266179447}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &559027381
@@ -1147,6 +1148,9 @@ MonoBehaviour:
   capaPiso:
     serializedVersion: 2
     m_Bits: 8
+  controladorPared: {fileID: 1266179447}
+  dimensionesCajaPared: {x: 0, y: 0, z: 0}
+  velocidadDeslizar: 0
 --- !u!95 &559027382
 Animator:
   serializedVersion: 7
@@ -3530,6 +3534,37 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!1 &1266179446
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1266179447}
+  m_Layer: 0
+  m_Name: ControladorPared
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1266179447
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1266179446}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 559027379}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1322727327
 GameObject:
   m_ObjectHideFlags: 0
@@ -4059,7 +4094,7 @@ Transform:
   m_GameObject: {fileID: 1939397166}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.164, z: 0}
+  m_LocalPosition: {x: 0.004, y: -0.197, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -4287,9 +4322,9 @@ SceneRoots:
   - {fileID: 519420032}
   - {fileID: 438562885}
   - {fileID: 2009587093}
-  - {fileID: 559027379}
   - {fileID: 323132836}
   - {fileID: 1322727329}
   - {fileID: 1216417119}
   - {fileID: 2124566042}
   - {fileID: 244677489}
+  - {fileID: 559027379}
