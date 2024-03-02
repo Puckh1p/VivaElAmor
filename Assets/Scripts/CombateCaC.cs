@@ -29,7 +29,6 @@ public class CombateCaC : MonoBehaviour
             tiempoSiguienteAtaque = tiempoEntreAtaques;
         }  
     }
-
     private void Golpe()
     {
         animator.SetTrigger("Golpe");
@@ -44,12 +43,10 @@ public class CombateCaC : MonoBehaviour
             }
         }   
     }
-
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(controladorGolpe.position,radioGolpe);
 
     }
-
 }
