@@ -40,9 +40,9 @@ public class CharacterController : MonoBehaviour
         ProcesarDash();
 
           if (Input.GetKeyDown(KeyCode.LeftShift) && !dashing)
-        {
+          {
             StartCoroutine(Dash());
-        }
+          }   
 
         if (Input.GetKeyDown(KeyCode.Space) && (EstaEnSuelo() || canJump))
         {   
@@ -52,14 +52,14 @@ public class CharacterController : MonoBehaviour
         }
 
         //Esta parte igual es del salto de pared
-    if(!EstaEnSuelo() && enPared && inputX != 0)
-    {
-    deslizando = true;
-    }
-    else
-    {
-    deslizando = false;
-    }
+        if(!EstaEnSuelo() && enPared && inputX != 0)
+        {
+            deslizando = true;
+        }
+        else
+        {
+            deslizando = false;
+        }   
 
     }
 
@@ -136,12 +136,12 @@ public class CharacterController : MonoBehaviour
     }
 
     void ProcesarDash()
-{
-  if (Input.GetKeyDown(KeyCode.C) && !dashing)
-{
-    StartCoroutine(Dash());
-}
-}
+    {
+        if (Input.GetKeyDown(KeyCode.C) && dashing)
+        {
+            StartCoroutine(Dash());
+        }
+    }   
 
      IEnumerator Dash()
     {
