@@ -12,6 +12,8 @@ public class CharacterController : MonoBehaviour
     private BoxCollider2D boxCollider;
     private bool mirandoDerecha = true;
     private bool saltoProlongado = false; // Variable para controlar si se está realizando un salto prolongado
+    private bool canJump = false; // Variable para controlar si se puede saltar (coyote time)
+    public float coyoteTime = 0.1f;
 
     //SALTO PARED
     private float inputX;
@@ -32,15 +34,23 @@ public class CharacterController : MonoBehaviour
         ProcesarMovimiento();
         ProcesarSalto();
 
+        if (Input.GetKeyDown(KeyCode.Space) && (EstaEnSuelo() || canJump))
+        {   
+            rigidBody.AddForce(Vector2.up * fuerzaSalto, ForceMode2D.Impulse);
+            saltoProlongado = true; // Inicia el salto prolongado
+            canJump = false; // Desactiva el coyote time
+        }
+
         //Esta parte igual es del salto de pared
-        if(!EstaEnSuelo && enPared && inputX != 0)
-        {
-            deslizando = true;
-        }
-        else
-        {
-            deslizando = false;
-        }
+    if(!EstaEnSuelo() && enPared && inputX != 0)
+    {
+    deslizando = true;
+    }
+    else
+    {
+    deslizando = false;
+    }
+
     }
 
     private void FixedUpdate()
@@ -53,6 +63,7 @@ public class CharacterController : MonoBehaviour
             rigidBody.velocity = new Vector2(rigidBody.velocity.x, Mathf.Clamp(rigidBody.velocity.y, -velocidadDeslizar, float.MaxValue));
         }
     }
+
     bool EstaEnSuelo()
     {
         RaycastHit2D raycastHit = Physics2D.BoxCast(boxCollider.bounds.center, new Vector2(boxCollider.bounds.size.x, boxCollider.bounds.size.y), 0f, Vector2.down, 0.2f, capaPiso);
