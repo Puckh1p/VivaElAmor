@@ -145,7 +145,7 @@ Transform:
   m_GameObject: {fileID: 138222190}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 4.4589314, y: 0.0069387914, z: 0}
+  m_LocalPosition: {x: 0.297, y: 0.0069387914, z: 0}
   m_LocalScale: {x: 0.2, y: 0.2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -332,6 +332,7 @@ GameObject:
   - component: {fileID: 244677487}
   - component: {fileID: 244677491}
   - component: {fileID: 244677490}
+  - component: {fileID: 244677492}
   m_Layer: 0
   m_Name: Enemigo
   m_TagString: Enemigo
@@ -422,7 +423,7 @@ Transform:
   m_GameObject: {fileID: 244677486}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 31.5, y: -0.64, z: 0}
+  m_LocalPosition: {x: 30.83, y: -0.54, z: 0}
   m_LocalScale: {x: 3.3790507, y: 3.3790507, z: 3.3790507}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -466,7 +467,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.42, y: 0.56}
+    oldSize: {x: 0.62, y: 0.56}
     newSize: {x: 0.42, y: 0.56}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -499,8 +500,21 @@ Rigidbody2D:
     m_Bits: 0
   m_Interpolate: 0
   m_SleepingMode: 1
-  m_CollisionDetection: 0
-  m_Constraints: 0
+  m_CollisionDetection: 1
+  m_Constraints: 6
+--- !u!114 &244677492
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 244677486}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33478e19027bdd24294f8cbaa61654b8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  vida: 100
 --- !u!1 &308926588
 GameObject:
   m_ObjectHideFlags: 3
@@ -771,7 +785,7 @@ Transform:
   m_GameObject: {fileID: 438562882}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2.5013092, y: 1.1800003, z: -10}
+  m_LocalPosition: {x: 1.940738, y: 1.1800003, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -949,7 +963,7 @@ Transform:
   m_GameObject: {fileID: 519420028}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2.5013092, y: 1.1800003, z: -10}
+  m_LocalPosition: {x: 1.940738, y: 1.1800003, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1294,6 +1308,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6009618e53137af40996655930538fad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  controladorGolpe: {fileID: 138222191}
+  radioGolpe: 1
+  "da\xF1oGolpe": 20
+  tiempoEntreAtaques: 1
+  tiempoSiguienteAtaque: 0
 --- !u!1 &621999582
 GameObject:
   m_ObjectHideFlags: 0

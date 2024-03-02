@@ -4,6 +4,13 @@ using UnityEngine;
 
 public class Enemigos : MonoBehaviour
 {
+    [SerializeField] private float vida;
+    private Animator animator;
+
+    private void Start()
+    {
+        animator = GetComponent<Animator>();
+    }
     public void TomarDaño(float daño)
     {
         vida -= daño;
@@ -15,6 +22,6 @@ public class Enemigos : MonoBehaviour
 
     private void Muerte()
     {
-        
+        animator.SetTrigger("Muerte");
     }
 }
