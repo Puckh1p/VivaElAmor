@@ -7,6 +7,8 @@ public class CharacterController : MonoBehaviour
     public float velocidad;
     public float fuerzaSalto;
     public float fuerzaSaltoProlongado; // Nueva variable para el salto prolongado
+    public float velocidadDash; // Velocidad del dash
+    public float duracionDash; // Duración del dash
     public LayerMask capaPiso;
     private Rigidbody2D rigidBody;
     private BoxCollider2D boxCollider;
@@ -14,6 +16,8 @@ public class CharacterController : MonoBehaviour
     private bool saltoProlongado = false; // Variable para controlar si se está realizando un salto prolongado
     private bool canJump = false; // Variable para controlar si se puede saltar (coyote time)
     public float coyoteTime = 0.1f;
+    private bool dashing = false; // Variable para controlar si se está realizando un dash
+    private float dashTimeLeft; // Tiempo restante del dash
 
     //SALTO PARED
     private float inputX;
@@ -33,6 +37,12 @@ public class CharacterController : MonoBehaviour
 
         ProcesarMovimiento();
         ProcesarSalto();
+        ProcesarDash();
+
+          if (Input.GetKeyDown(KeyCode.LeftShift) && !dashing)
+        {
+            StartCoroutine(Dash());
+        }
 
         if (Input.GetKeyDown(KeyCode.Space) && (EstaEnSuelo() || canJump))
         {   
@@ -101,6 +111,10 @@ public class CharacterController : MonoBehaviour
     {
         float inputMovimiento = Input.GetAxis("Horizontal");
         rigidBody.velocity = new Vector2(inputMovimiento * velocidad, rigidBody.velocity.y);
+        if (!dashing)
+        {
+            rigidBody.velocity = new Vector2(inputMovimiento * velocidad, rigidBody.velocity.y);
+        }
 
         GestionarOrientacion(inputMovimiento);
     }
@@ -119,6 +133,29 @@ public class CharacterController : MonoBehaviour
     {
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireCube(controladorPared.position, dimensionesCajaPared);
+    }
+
+    void ProcesarDash()
+{
+  if (Input.GetKeyDown(KeyCode.C) && !dashing)
+{
+    StartCoroutine(Dash());
+}
+}
+
+     IEnumerator Dash()
+    {
+        dashing = true;
+        rigidBody.velocity = new Vector2(mirandoDerecha ? velocidadDash : -velocidadDash, rigidBody.velocity.y);
+        dashTimeLeft = duracionDash;
+
+        while (dashTimeLeft > 0)
+        {
+            dashTimeLeft -= Time.deltaTime;
+            yield return null;
+        }
+
+        dashing = false;
     }
 }
 
