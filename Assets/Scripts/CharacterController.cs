@@ -1,71 +1,76 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+
 public class CharacterController : MonoBehaviour
 {
-
     public float velocidad;
     public float fuerzaSalto;
-    public float fuerzaSaltoProlongado; // Nueva variable para el salto prolongado
-    public float velocidadDash; // Velocidad del dash
-    public float duracionDash; // Duración del dash
+    public float fuerzaSaltoProlongado; 
+    public float velocidadDash; 
+    public float duracionDash; 
     public LayerMask capaPiso;
+
     private Rigidbody2D rigidBody;
     private BoxCollider2D boxCollider;
     private bool mirandoDerecha = true;
-    private bool saltoProlongado = false; // Variable para controlar si se está realizando un salto prolongado
-    private bool canJump = false; // Variable para controlar si se puede saltar (coyote time)
+    private bool saltoProlongado = false; 
+    private bool canJump = false; 
     public float coyoteTime = 0.1f;
-    private bool dashing = false; // Variable para controlar si se está realizando un dash
-    private float dashTimeLeft; // Tiempo restante del dash
+    private bool dashing = false; 
+    private float dashTimeLeft; 
+    private EstadoDash estadoDash = EstadoDash.Idle;
 
-    //SALTO PARED
+    // SALTO PARED
     private float inputX;
     public Transform controladorPared;
     public Vector3 dimensionesCajaPared;
     public float velocidadDeslizar;
     private bool enPared;
     private bool deslizando;
+
+    private float tiempoCooldown = 4f;
+
+    public enum EstadoDash
+    {
+        Idle,
+        Dashing,
+        Cooldown
+    }
+
     private void Start()
     {
         rigidBody = GetComponent<Rigidbody2D>();
         boxCollider = GetComponent<BoxCollider2D>();
     }
+
     void Update()
     {
-        inputX = Input.GetAxisRaw("Horizontal"); //Parte del salto de pared
+        inputX = Input.GetAxisRaw("Horizontal");
 
         ProcesarMovimiento();
         ProcesarSalto();
         ProcesarDash();
 
-          if (Input.GetKeyDown(KeyCode.LeftShift) && !dashing)
-          {
-            StartCoroutine(Dash());
-          }   
-
         if (Input.GetKeyDown(KeyCode.Space) && (EstaEnSuelo() || canJump))
-        {   
+        {
             rigidBody.AddForce(Vector2.up * fuerzaSalto, ForceMode2D.Impulse);
-            saltoProlongado = true; // Inicia el salto prolongado
-            canJump = false; // Desactiva el coyote time
+            saltoProlongado = true;
+            canJump = false;
         }
 
-        //Esta parte igual es del salto de pared
-        if(!EstaEnSuelo() && enPared && inputX != 0)
+        if (!EstaEnSuelo() && enPared && inputX != 0)
         {
             deslizando = true;
         }
         else
         {
             deslizando = false;
-        }   
-
+        }
     }
 
     private void FixedUpdate()
     {
-        //Esta parte tambien
         enPared = Physics2D.OverlapBox(controladorPared.position, dimensionesCajaPared, 0f, capaPiso);
 
         if (deslizando)
@@ -85,25 +90,24 @@ public class CharacterController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Space))
         {
             if (EstaEnSuelo())
-            {   
-            rigidBody.AddForce(Vector2.up * fuerzaSalto, ForceMode2D.Impulse);
-            saltoProlongado = true; // Inicia el salto prolongado
+            {
+                rigidBody.AddForce(Vector2.up * fuerzaSalto, ForceMode2D.Impulse);
+                saltoProlongado = true;
             }
             else if (!saltoProlongado)
             {
-            saltoProlongado = true; // Inicia el salto prolongado si no está activo
+                saltoProlongado = true;
             }
         }
 
-        if (Input.GetKeyUp(KeyCode.Space)) // Cuando se suelta la tecla de espacio
+        if (Input.GetKeyUp(KeyCode.Space))
         {
-        saltoProlongado = false; // Finaliza el salto prolongado
+            saltoProlongado = false;
         }
 
-        // Aplica fuerza adicional si la tecla de espacio sigue presionada y el personaje está en el aire
         if (saltoProlongado && rigidBody.velocity.y > 0)
         {
-        rigidBody.AddForce(Vector2.up * fuerzaSaltoProlongado * Time.deltaTime);
+            rigidBody.AddForce(Vector2.up * fuerzaSaltoProlongado * Time.deltaTime);
         }
     }
 
@@ -128,23 +132,27 @@ public class CharacterController : MonoBehaviour
             Vector3 escala = transform.localScale;
         }
     }
-    
-    private void OnDrawGizmos() //Parte del codigo de salto a pared
-    {
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireCube(controladorPared.position, dimensionesCajaPared);
-    }
 
     void ProcesarDash()
     {
-        if (Input.GetKeyDown(KeyCode.C) && dashing)
+        switch (estadoDash)
         {
-            StartCoroutine(Dash());
+            case EstadoDash.Idle:
+                if (Input.GetKeyDown(KeyCode.C) && estadoDash != EstadoDash.Dashing)
+                {
+                    Debug.Log("Activando dash");
+                    StartCoroutine(Dash());
+                }
+                break;
+            case EstadoDash.Cooldown:
+                // Aquí puedes manejar cualquier lógica de cooldown si es necesario
+                break;
         }
-    }   
+    }
 
-     IEnumerator Dash()
+    IEnumerator Dash()
     {
+        estadoDash = EstadoDash.Dashing;
         dashing = true;
         rigidBody.velocity = new Vector2(mirandoDerecha ? velocidadDash : -velocidadDash, rigidBody.velocity.y);
         dashTimeLeft = duracionDash;
@@ -156,6 +164,8 @@ public class CharacterController : MonoBehaviour
         }
 
         dashing = false;
+        estadoDash = EstadoDash.Cooldown;
+        yield return new WaitForSeconds(tiempoCooldown); // Cooldown de 4 segundos
+        estadoDash = EstadoDash.Idle;
     }
 }
-

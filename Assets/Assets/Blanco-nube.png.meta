@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 1afce270e36cb314b9bd234afdc76eaa
+guid: bef8d7e6cd90ebf44b668413703cc9be
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 2842250879550429346
-    second: Bringer-of-Death_Death_7_0
+      213: -6044460114152449861
+    second: Blanco-nube_0
   externalObjects: {}
   serializedVersion: 12
   mipmaps:
@@ -37,7 +37,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 0
+    filterMode: 1
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -75,7 +75,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 2
+    textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -110,13 +110,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Bringer-of-Death_Death_7_0
+      name: Blanco-nube_0
       rect:
         serializedVersion: 2
-        x: 85
-        y: 5
-        width: 50
-        height: 61
+        x: 0
+        y: 0
+        width: 1280
+        height: 1205
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -124,8 +124,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 2a81526bd14b17720800000000000000
-      internalID: 2842250879550429346
+      spriteID: bb81de41d83cd1ca0800000000000000
+      internalID: -6044460114152449861
       vertices: []
       indices: 
       edges: []
@@ -140,8 +140,7 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
-    nameFileIdTable:
-      Bringer-of-Death_Death_7_0: 2842250879550429346
+    nameFileIdTable: {}
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
