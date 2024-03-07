@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class CharacterController : MonoBehaviour
 {
+    public Animator animator;
     public float velocidad;
     public float fuerzaSalto;
     public float fuerzaSaltoProlongado; 
@@ -20,6 +21,8 @@ public class CharacterController : MonoBehaviour
     private bool dashing = false; 
     private float dashTimeLeft; 
     private EstadoDash estadoDash = EstadoDash.Idle;
+    float horizontalMove = 0f;
+    public float runSpeed = 40f;
 
     // SALTO PARED
     private float inputX;
@@ -46,6 +49,14 @@ public class CharacterController : MonoBehaviour
 
     void Update()
     {
+        if(runSpeed > 0)
+        {
+            animator.SetTrigger("Correr");
+        }
+
+        horizontalMove = Input.GetAxisRaw("Horizontal") * runSpeed;
+        animator.SetFloat("Speed", Mathf.Abs(horizontalMove));
+
         inputX = Input.GetAxisRaw("Horizontal");
 
         ProcesarMovimiento();
@@ -62,6 +73,7 @@ public class CharacterController : MonoBehaviour
         if (!EstaEnSuelo() && enPared && inputX != 0)
         {
             deslizando = true;
+
         }
         else
         {

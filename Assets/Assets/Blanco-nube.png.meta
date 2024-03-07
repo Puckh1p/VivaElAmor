@@ -140,7 +140,8 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      Blanco-nube_0: -6044460114152449861
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

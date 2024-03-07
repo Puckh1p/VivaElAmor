@@ -117,11 +117,11 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 0
-        y: 0
-        width: 120
-        height: 85
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        y: 1
+        width: 139
+        height: 84
+      alignment: 9
+      pivot: {x: 0.7596459, y: 0.0070018014}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -137,12 +137,12 @@ TextureImporter:
       name: Bringer-of-Death_Attack_6_1
       rect:
         serializedVersion: 2
-        x: 109
-        y: 65
-        width: 31
+        x: 124
+        y: 31
+        width: 10
         height: 8
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -157,7 +157,7 @@ TextureImporter:
     outline: []
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 6a8ccb93e2036e0499cb9a6765d85fc7
     internalID: 0
     vertices: []
     indices: 
