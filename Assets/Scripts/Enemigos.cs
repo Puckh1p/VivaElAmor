@@ -7,6 +7,8 @@ public class Enemigos : MonoBehaviour
     [SerializeField] private float vida;
     [SerializeField] private float daño;
     [SerializeField] private float rangoAtaque;
+    [SerializeField] private float cooldownAtaque = 1f; // Tiempo en segundos entre cada ataque
+    private float tiempoUltimoAtaque; // Guarda el tiempo del último ataque
 
     private Animator animator;
     private Transform jugador;
@@ -15,14 +17,16 @@ public class Enemigos : MonoBehaviour
     {
         animator = GetComponent<Animator>();
         jugador = GameObject.FindGameObjectWithTag("Player").transform;
+        tiempoUltimoAtaque = -cooldownAtaque; // Inicializa el tiempo del último ataque para permitir atacar inmediatamente al comenzar
     }
 
     private void Update()
     {
-        // Si el jugador está dentro del rango de ataque, ataca
-        if (Vector2.Distance(transform.position, jugador.position) < rangoAtaque)
+        // Si el jugador está dentro del rango de ataque y ha pasado el cooldown, ataca
+        if (Time.time >= tiempoUltimoAtaque + cooldownAtaque && Vector2.Distance(transform.position, jugador.position) < rangoAtaque)
         {
             Atacar();
+            tiempoUltimoAtaque = Time.time; // Actualiza el tiempo del último ataque
         }
     }
 
@@ -45,7 +49,10 @@ public class Enemigos : MonoBehaviour
     private void Atacar()
     {
         // Aquí puedes agregar la lógica para realizar el ataque al jugador
-        // Por ejemplo, puedes restarle vida al jugador, reproducir una animación de ataque, etc.
+        
+        animator.SetTrigger("EnemyAttack");
+
+
         Debug.Log("¡El enemigo está atacando!");
         if (jugador != null)
         {
