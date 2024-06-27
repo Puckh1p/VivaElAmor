@@ -8,7 +8,8 @@ public class CombateCaC : MonoBehaviour
     [SerializeField] private float radioGolpe;
     [SerializeField] private float dañoGolpe;
     [SerializeField] private float tiempoEntreAtaques;
-    [SerializeField] private float tiempoSiguienteAtaque;
+    private float tiempoSiguienteAtaque;
+    [SerializeField] private LayerMask jugadorLayer; // Máscara de capa para jugadores y enemigos
 
     private Animator animator;
 
@@ -16,37 +17,44 @@ public class CombateCaC : MonoBehaviour
     {
         animator = GetComponent<Animator>();
     }
+
     private void Update()
     {
-        if(tiempoSiguienteAtaque > 0)
+        if (tiempoSiguienteAtaque > 0)
         {
             tiempoSiguienteAtaque -= Time.deltaTime;
         }
-        
-        if(Input.GetButtonDown("Fire1"))
+
+        if (Input.GetButtonDown("Fire1") && tiempoSiguienteAtaque <= 0)
         {
             Golpe();
             tiempoSiguienteAtaque = tiempoEntreAtaques;
-        }  
+        }
     }
+
     private void Golpe()
     {
         animator.SetTrigger("Golpe");
 
-        Collider2D[] objetos = Physics2D.OverlapCircleAll(controladorGolpe.position, radioGolpe);
+        Collider2D[] objetos = Physics2D.OverlapCircleAll(controladorGolpe.position, radioGolpe, jugadorLayer);
 
         foreach (Collider2D colisionador in objetos)
         {
-            if(colisionador.CompareTag("Enemigo"))
+            if (colisionador.CompareTag("Enemigo"))
             {
-            colisionador.transform.GetComponent<Enemigos>().TomarDaño(dañoGolpe);
+                Debug.Log("Golpeó a: " + colisionador.name);
+                colisionador.transform.GetComponent<Enemigos>().TomarDaño(dañoGolpe);
             }
-        }   
+            else
+            {
+                Debug.Log("No es un enemigo: " + colisionador.name);
+            }
+        }
     }
+
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(controladorGolpe.position,radioGolpe);
-
+        Gizmos.DrawWireSphere(controladorGolpe.position, radioGolpe);
     }
 }

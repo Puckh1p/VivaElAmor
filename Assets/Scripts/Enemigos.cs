@@ -4,35 +4,12 @@ using UnityEngine;
 
 public class Enemigos : MonoBehaviour
 {
-    [SerializeField] private float vida;
-    [SerializeField] private float daño;
-    [SerializeField] private float rangoAtaque;
-    [SerializeField] private float cooldownAtaque = 1f; // Tiempo en segundos entre cada ataque
-    private float tiempoUltimoAtaque; // Guarda el tiempo del último ataque
+    public float vida = 100f;
 
-    private Animator animator;
-    private Transform jugador;
-
-    private void Start()
+    public void TomarDa�o(float cantidad)
     {
-        animator = GetComponent<Animator>();
-        jugador = GameObject.FindGameObjectWithTag("Player").transform;
-        tiempoUltimoAtaque = -cooldownAtaque; // Inicializa el tiempo del último ataque para permitir atacar inmediatamente al comenzar
-    }
-
-    private void Update()
-    {
-        // Si el jugador está dentro del rango de ataque y ha pasado el cooldown, ataca
-        if (Time.time >= tiempoUltimoAtaque + cooldownAtaque && Vector2.Distance(transform.position, jugador.position) < rangoAtaque)
-        {
-            Atacar();
-            tiempoUltimoAtaque = Time.time; // Actualiza el tiempo del último ataque
-        }
-    }
-
-    public void TomarDaño(float dañoRecibido)
-    {
-        vida -= dañoRecibido;
+        vida -= cantidad;
+        Debug.Log("Enemigo recibi� da�o. Vida restante: " + vida);
         if (vida <= 0)
         {
             Morir();
@@ -41,22 +18,21 @@ public class Enemigos : MonoBehaviour
 
     private void Morir()
     {
-        animator.SetTrigger("Muerte");
-        // Aquí puedes agregar cualquier otra lógica relacionada con la muerte del enemigo
-        Destroy(gameObject, animator.GetCurrentAnimatorStateInfo(0).length);
+        Destroy(gameObject);
     }
 
-    private void Atacar()
+    private void OnCollisionEnter2D(Collision2D other)
     {
-        // Aquí puedes agregar la lógica para realizar el ataque al jugador
-        
-        animator.SetTrigger("EnemyAttack");
-
-
-        Debug.Log("¡El enemigo está atacando!");
-        if (jugador != null)
+        if (other.gameObject.CompareTag("Player"))
         {
-            jugador.GetComponent<VidaJugador>().RecibirDanio(daño);
+            if (GameManager.Instance != null)
+            {
+                GameManager.Instance.PerderVida();
+            }
+            else
+            {
+                Debug.LogError("GameManager instance is not set.");
+            }
         }
     }
 }
