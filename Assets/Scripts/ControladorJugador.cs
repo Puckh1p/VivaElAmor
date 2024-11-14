@@ -75,18 +75,20 @@ public class ControladorJugador : MonoBehaviour
         animator.SetFloat("VelocidadY", rb2D.velocity.y);
         animator.SetBool("Deslizando", deslizando);
 
+        // Iniciar el salto normal o el salto en pared
         if (Input.GetButtonDown("Jump"))
         {
             if (enSuelo)
             {
                 Salto();
             }
-            else if (enPared)
+            else if (enPared && !saltandoDePared)
             {
                 SaltoPared();
             }
         }
 
+        // Salto prolongado
         if (Input.GetButton("Jump") && IsJumping)
         {
             if (jumpTimeCounter > 0)
@@ -94,13 +96,20 @@ public class ControladorJugador : MonoBehaviour
                 rb2D.velocity = new Vector2(rb2D.velocity.x, fuerzaSaltoLargo);
                 jumpTimeCounter -= Time.deltaTime;
             }
+            else
+            {
+                // Termina el salto prolongado cuando se acaba el tiempo
+                IsJumping = false;
+            }
         }
 
+        // Detener el salto prolongado cuando se suelta el botón
         if (Input.GetButtonUp("Jump"))
         {
             IsJumping = false;
         }
 
+        // Iniciar Dash
         if (Input.GetKeyDown(KeyCode.B) && puedeHacerDash)
         {
             StartCoroutine(Dash());
@@ -168,16 +177,18 @@ public class ControladorJugador : MonoBehaviour
     private void Salto()
     {
         IsJumping = true;
+        salto = true; // Marcar que se está realizando un salto
         rb2D.velocity = new Vector2(rb2D.velocity.x, fuerzaSalto);
-        jumpTimeCounter = jumpTime;
+        jumpTimeCounter = jumpTime; // Reinicia el temporizador de salto prolongado
     }
 
     private void SaltoPared()
     {
         enPared = false;
         IsJumping = true;
-        rb2D.velocity = new Vector2(rb2D.velocity.x, fuerzaSaltoParedY);
-        jumpTimeCounter = jumpTime; // Reinicia el contador para el salto prolongado
+        salto = true;
+        rb2D.velocity = new Vector2(fuerzaSaltoParedX * (mirandoDerecha ? -1 : 1), fuerzaSaltoParedY);
+        jumpTimeCounter = jumpTime; // Reinicia el temporizador de salto prolongado
         StartCoroutine(CambioSaltoPared());
     }
 
