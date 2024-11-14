@@ -5,7 +5,7 @@ public class ConcreteProductB : MonoBehaviour, IProduct
 {
     public void Initialize()
     {
-        Debug.Log("ConcreteProductB creado e inicializado.");
+        Debug.Log("Producto B creado e inicializado.");
         // Lógica específica para ProductB
     }
 }

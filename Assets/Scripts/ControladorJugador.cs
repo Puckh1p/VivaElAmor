@@ -50,7 +50,7 @@ public class ControladorJugador : MonoBehaviour
 
     [Header("Vida")]
     [SerializeField] private int vida = 100;
-    [SerializeField] private Slider barraDeVida; // Referencia al Slider de la barra de vida
+    [SerializeField] private Slider barraDeVida; 
 
     private bool isInvulnerable = false;
     [SerializeField] private float invulnerabilityDuration = 1f;
@@ -59,9 +59,9 @@ public class ControladorJugador : MonoBehaviour
     {
         rb2D = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
-        gravedadInicial = rb2D.gravityScale;
+        //gravedadInicial = rb2D.gravityScale;
 
-        // Configurar la barra de vida
+        
         barraDeVida.maxValue = vida;
         barraDeVida.value = vida;
     }
@@ -89,25 +89,27 @@ public class ControladorJugador : MonoBehaviour
         }
 
         // Salto prolongado
-        if (Input.GetButton("Jump") && IsJumping)
-        {
-            if (jumpTimeCounter > 0)
-            {
-                rb2D.velocity = new Vector2(rb2D.velocity.x, fuerzaSaltoLargo);
-                jumpTimeCounter -= Time.deltaTime;
-            }
-            else
-            {
-                // Termina el salto prolongado cuando se acaba el tiempo
-                IsJumping = false;
-            }
-        }
+        /* if (Input.GetButton("Jump") && IsJumping)
+         {
+             if (jumpTimeCounter > 0)
+             {
+                 rb2D.velocity = new Vector2(rb2D.velocity.x, fuerzaSaltoLargo);
+                 jumpTimeCounter -= Time.deltaTime;
+             }
+             else
+             {
+                 // Termina el salto prolongado cuando se acaba el tiempo
+                 IsJumping = false;
+             }
+         }
 
-        // Detener el salto prolongado cuando se suelta el botón
-        if (Input.GetButtonUp("Jump"))
-        {
-            IsJumping = false;
-        }
+
+         // Detener el salto prolongado cuando se suelta el botón
+         if (Input.GetButtonUp("Jump"))
+         {
+             IsJumping = false;
+         }
+        */
 
         // Iniciar Dash
         if (Input.GetKeyDown(KeyCode.B) && puedeHacerDash)
@@ -179,7 +181,7 @@ public class ControladorJugador : MonoBehaviour
         IsJumping = true;
         salto = true; // Marcar que se está realizando un salto
         rb2D.velocity = new Vector2(rb2D.velocity.x, fuerzaSalto);
-        jumpTimeCounter = jumpTime; // Reinicia el temporizador de salto prolongado
+        //jumpTimeCounter = jumpTime; // Reinicia el temporizador de salto prolongado
     }
 
     private void SaltoPared()
@@ -188,7 +190,7 @@ public class ControladorJugador : MonoBehaviour
         IsJumping = true;
         salto = true;
         rb2D.velocity = new Vector2(fuerzaSaltoParedX * (mirandoDerecha ? -1 : 1), fuerzaSaltoParedY);
-        jumpTimeCounter = jumpTime; // Reinicia el temporizador de salto prolongado
+        //jumpTimeCounter = jumpTime; // Reinicia el temporizador de salto prolongado
         StartCoroutine(CambioSaltoPared());
     }
 
