@@ -1,22 +1,40 @@
-
 using UnityEngine;
+using System.Collections.Generic;
 
 public class Spawner : MonoBehaviour
 {
-    [SerializeField] private Factory factory;
+    [SerializeField] private Factory factory; // Asignar la Factory desde el Inspector
+    [SerializeField] private int maxFireballs = 7; // Máximo de instancias
+    [SerializeField] private float spawnInterval = 1f; // Intervalo de generación
+
+    private List<GameObject> fireballs = new List<GameObject>(); // Lista para rastrear bolas activas
 
     private void Start()
     {
-        factory = FindObjectOfType<Factory>();
-
         if (factory == null)
         {
-            Debug.LogError("No se encontró una Factory en la escena. Asegúrate de que el objeto con el script Factory esté presente y activo en la escena.");
+            Debug.LogError("Factory no está asignada en el Inspector.");
             return;
         }
 
-        // Crear productos si la Factory se encuentra
-        factory.CreateProduct("A");
-        factory.CreateProduct("B");
+        InvokeRepeating(nameof(SpawnFireball), 0f, spawnInterval);
+    }
+
+    private void SpawnFireball()
+    {
+        // Elimina referencias a objetos destruidos
+        fireballs.RemoveAll(fireball => fireball == null);
+
+        // Verifica si ya se alcanzó el número máximo de bolas de fuego
+        if (fireballs.Count >= maxFireballs) return;
+
+        // Crear una nueva bola de fuego
+        GameObject fireball = factory.CreateProduct("A", transform.position);
+
+        // Asegúrate de añadirla a la lista
+        if (fireball != null)
+        {
+            fireballs.Add(fireball);
+        }
     }
 }
