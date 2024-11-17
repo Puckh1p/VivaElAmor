@@ -20,7 +20,8 @@ public class ControladorJugador : MonoBehaviour
     [SerializeField] private float fuerzaSaltoLargo;
     [SerializeField] private LayerMask queEsSuelo;
     [SerializeField] private Transform controladorSuelo;
-    [SerializeField] private Vector3 dimensionesCaja;
+    [SerializeField] private Vector3 dimensionesCaja = new Vector3(0.5f, 0.1f, 0f);
+
     private bool enSuelo;
     private bool salto = false;
     private bool IsJumping = false;
@@ -73,45 +74,21 @@ public class ControladorJugador : MonoBehaviour
 
         animator.SetFloat("VelocidadX", Mathf.Abs(rb2D.velocity.x));
         animator.SetFloat("VelocidadY", rb2D.velocity.y);
-        animator.SetBool("Deslizando", deslizando);
 
-        // Iniciar el salto normal o el salto en pared
-        if (Input.GetButtonDown("Jump"))
+        // Verificar si la barra espaciadora es detectada
+        if (Input.GetKeyDown(KeyCode.Space))
         {
-            if (enSuelo)
-            {
-                Salto();
-            }
-            else if (enPared && !saltandoDePared)
-            {
-                SaltoPared();
-            }
+            Debug.Log("Barra espaciadora presionada");
         }
 
-        // Salto prolongado
-        /* if (Input.GetButton("Jump") && IsJumping)
-         {
-             if (jumpTimeCounter > 0)
-             {
-                 rb2D.velocity = new Vector2(rb2D.velocity.x, fuerzaSaltoLargo);
-                 jumpTimeCounter -= Time.deltaTime;
-             }
-             else
-             {
-                 // Termina el salto prolongado cuando se acaba el tiempo
-                 IsJumping = false;
-             }
-         }
+        // Intentar salto
+        if (Input.GetKeyDown(KeyCode.Space) && enSuelo)
+        {
+            Salto();
+            Debug.Log("Intentando saltar");
+        }
 
-
-         // Detener el salto prolongado cuando se suelta el botón
-         if (Input.GetButtonUp("Jump"))
-         {
-             IsJumping = false;
-         }
-        */
-
-        // Iniciar Dash
+        // Manejar el Dash
         if (Input.GetKeyDown(KeyCode.B) && puedeHacerDash)
         {
             StartCoroutine(Dash());
@@ -121,31 +98,16 @@ public class ControladorJugador : MonoBehaviour
 
     private void FixedUpdate()
     {
+        // Detecta si el jugador está en el suelo utilizando Physics2D.OverlapBox
         enSuelo = Physics2D.OverlapBox(controladorSuelo.position, dimensionesCaja, 0f, queEsSuelo);
-        animator.SetBool("enSuelo", enSuelo);
 
-        enPared = Physics2D.OverlapBox(controladorParedIzquierda.position, controladorParedIzquierda.GetComponent<BoxCollider2D>().size, 0f, queEsSuelo) ||
-                  Physics2D.OverlapBox(controladorParedDerecha.position, controladorParedDerecha.GetComponent<BoxCollider2D>().size, 0f, queEsSuelo);
-        deslizando = enPared && !enSuelo && rb2D.velocity.y < 0;
+        // Mensaje de depuración para confirmar la detección
+        Debug.Log("¿Está en el suelo?: " + enSuelo);
 
+        // Movimiento horizontal del jugador
         if (sePuedeMover)
         {
             Mover(movimientoHorizontal * Time.fixedDeltaTime);
-        }
-
-        if (deslizando)
-        {
-            rb2D.velocity = new Vector2(rb2D.velocity.x, Mathf.Clamp(rb2D.velocity.y, -velocidadDeslizar, float.MaxValue));
-        }
-
-        // Manejo del salto
-        if (enSuelo && salto)
-        {
-            Salto();
-        }
-        else if (enPared && salto)
-        {
-            SaltoPared();
         }
     }
 
@@ -165,33 +127,48 @@ public class ControladorJugador : MonoBehaviour
         {
             Girar();
         }
-
-        if (enSuelo && salto)
-        {
-            Salto();
-        }
-        else if (enPared && salto)
-        {
-            SaltoPared();
-        }
     }
 
     private void Salto()
     {
-        IsJumping = true;
-        salto = true; // Marcar que se está realizando un salto
-        rb2D.velocity = new Vector2(rb2D.velocity.x, fuerzaSalto);
-        //jumpTimeCounter = jumpTime; // Reinicia el temporizador de salto prolongado
+        if (enSuelo)
+        {
+            rb2D.velocity = new Vector2(rb2D.velocity.x, fuerzaSalto);
+            salto = true; // Marca que el jugador está en estado de salto
+            enSuelo = false; // Cambia el estado para que no pueda saltar de nuevo hasta tocar el suelo
+            Debug.Log("Jugador saltó con fuerza: " + fuerzaSalto);
+        }
+        else
+        {
+            Debug.Log("Jugador intentó saltar, pero no está en el suelo");
+        }
     }
+
+
+
+
+
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        // Detectar si el objeto que sale del trigger es el suelo
+        if (((1 << collision.gameObject.layer) & queEsSuelo) != 0)
+        {
+            enSuelo = false; // Cambia el estado para que no pueda saltar hasta tocar el suelo
+            Debug.Log("Jugador salió del suelo.");
+        }
+    }
+
 
     private void SaltoPared()
     {
-        enPared = false;
-        IsJumping = true;
-        salto = true;
-        rb2D.velocity = new Vector2(fuerzaSaltoParedX * (mirandoDerecha ? -1 : 1), fuerzaSaltoParedY);
-        //jumpTimeCounter = jumpTime; // Reinicia el temporizador de salto prolongado
-        StartCoroutine(CambioSaltoPared());
+        if (enPared)
+        {
+            enPared = false;
+            IsJumping = true;
+            salto = true;
+            rb2D.velocity = new Vector2(fuerzaSaltoParedX * (mirandoDerecha ? -1 : 1), fuerzaSaltoParedY);
+            StartCoroutine(CambioSaltoPared());
+        }
     }
 
     private IEnumerator CambioSaltoPared()
@@ -241,11 +218,22 @@ public class ControladorJugador : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
+        // Detectar si el objeto que entra al trigger es el suelo
+        if (((1 << collision.gameObject.layer) & queEsSuelo) != 0)
+        {
+            enSuelo = true;
+            salto = false; // Resetea el estado de salto
+            Debug.Log("Jugador tocó el suelo.");
+        }
+
+        // Detectar colisión con enemigos
         if (collision.CompareTag("Enemy"))
         {
             RecibirDanio(1);
         }
     }
+
+
 
     public void RecibirDanio(int danio)
     {
