@@ -74,6 +74,7 @@ public class ControladorJugador : MonoBehaviour
 
         animator.SetFloat("VelocidadX", Mathf.Abs(rb2D.velocity.x));
         animator.SetFloat("VelocidadY", rb2D.velocity.y);
+        
 
         // Verificar si la barra espaciadora es detectada
         if (Input.GetKeyDown(KeyCode.Space))
