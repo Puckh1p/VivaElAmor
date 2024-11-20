@@ -17,16 +17,20 @@ public class ControladorJugador : MonoBehaviour
 
     [Header("Salto")]
     [SerializeField] private float fuerzaSalto;
-    [SerializeField] private float fuerzaSaltoLargo;
     [SerializeField] private LayerMask queEsSuelo;
     [SerializeField] private Transform controladorSuelo;
     [SerializeField] private Vector3 dimensionesCaja = new Vector3(0.5f, 0.1f, 0f);
 
     private bool enSuelo;
-    private bool salto = false;
-    private bool IsJumping = false;
-    private float jumpTimeCounter;
-    [SerializeField] private float jumpTime;
+
+    [Header("Salto en Pared")]
+    [SerializeField] private Transform controladorParedIzquierda;
+    [SerializeField] private Transform controladorParedDerecha;
+    [SerializeField] private Vector3 dimensionesCajaPared = new Vector3(0.5f, 1f, 0f);
+    [SerializeField] private float fuerzaSaltoParedX = 5f;
+    [SerializeField] private float fuerzaSaltoParedY = 5f;
+    private bool enPared;
+    private bool saltandoDePared = false;
 
     [Header("Dash")]
     [SerializeField] private float velocidadDash;
@@ -38,20 +42,9 @@ public class ControladorJugador : MonoBehaviour
     [Header("Animacion")]
     private Animator animator;
 
-    [Header("SaltoPared")]
-    [SerializeField] private Transform controladorParedIzquierda;
-    [SerializeField] private Transform controladorParedDerecha;
-    private bool enPared;
-    private bool deslizando;
-    [SerializeField] private float velocidadDeslizar;
-    [SerializeField] private float fuerzaSaltoParedX;
-    [SerializeField] private float fuerzaSaltoParedY;
-    [SerializeField] private float tiempoSaltoPared;
-    private bool saltandoDePared;
-
     [Header("Vida")]
     [SerializeField] private int vida = 100;
-    [SerializeField] private Slider barraDeVida; 
+    [SerializeField] private Slider barraDeVida;
 
     private bool isInvulnerable = false;
     [SerializeField] private float invulnerabilityDuration = 1f;
@@ -60,52 +53,54 @@ public class ControladorJugador : MonoBehaviour
     {
         rb2D = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
-        //gravedadInicial = rb2D.gravityScale;
 
-        
         barraDeVida.maxValue = vida;
         barraDeVida.value = vida;
     }
 
     private void Update()
     {
+        // Movimiento
         inputX = Input.GetAxisRaw("Horizontal");
         movimientoHorizontal = inputX * velocidadDeMovimiento;
 
+        // Animaciones
         animator.SetFloat("VelocidadX", Mathf.Abs(rb2D.velocity.x));
         animator.SetFloat("VelocidadY", rb2D.velocity.y);
-        
 
-        // Verificar si la barra espaciadora es detectada
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            Debug.Log("Barra espaciadora presionada");
-        }
-
-        // Intentar salto
+        // Salto normal
         if (Input.GetKeyDown(KeyCode.Space) && enSuelo)
         {
             Salto();
-            Debug.Log("Intentando saltar");
         }
 
-        // Manejar el Dash
+        // Salto en pared
+        if (Input.GetKeyDown(KeyCode.Space) && enPared && !enSuelo)
+        {
+            SaltoPared();
+        }
+
+        // Dash
         if (Input.GetKeyDown(KeyCode.B) && puedeHacerDash)
         {
             StartCoroutine(Dash());
         }
     }
 
-
     private void FixedUpdate()
     {
-        // Detecta si el jugador está en el suelo utilizando Physics2D.OverlapBox
+        // Detectar si está en el suelo
         enSuelo = Physics2D.OverlapBox(controladorSuelo.position, dimensionesCaja, 0f, queEsSuelo);
 
-        // Mensaje de depuración para confirmar la detección
-        Debug.Log("¿Está en el suelo?: " + enSuelo);
+        // Detectar si está en pared
+        enPared = Physics2D.OverlapBox(controladorParedIzquierda.position, dimensionesCajaPared, 0f, queEsSuelo) ||
+                  Physics2D.OverlapBox(controladorParedDerecha.position, dimensionesCajaPared, 0f, queEsSuelo);
 
-        // Movimiento horizontal del jugador
+        // Animaciones
+        animator.SetBool("enSuelo", enSuelo);
+        animator.SetBool("enPared", enPared);
+
+        // Movimiento
         if (sePuedeMover)
         {
             Mover(movimientoHorizontal * Time.fixedDeltaTime);
@@ -132,66 +127,30 @@ public class ControladorJugador : MonoBehaviour
 
     private void Salto()
     {
-        if (enSuelo)
-        {
-            rb2D.velocity = new Vector2(rb2D.velocity.x, fuerzaSalto);
-            salto = true; // Marca que el jugador está en estado de salto
-            enSuelo = false; // Cambia el estado para que no pueda saltar de nuevo hasta tocar el suelo
-            Debug.Log("Jugador saltó con fuerza: " + fuerzaSalto);
-        }
-        else
-        {
-            Debug.Log("Jugador intentó saltar, pero no está en el suelo");
-        }
+        rb2D.velocity = new Vector2(rb2D.velocity.x, fuerzaSalto);
     }
-
-
-
-
-
-    private void OnTriggerExit2D(Collider2D collision)
-    {
-        // Detectar si el objeto que sale del trigger es el suelo
-        if (((1 << collision.gameObject.layer) & queEsSuelo) != 0)
-        {
-            enSuelo = false; // Cambia el estado para que no pueda saltar hasta tocar el suelo
-            Debug.Log("Jugador salió del suelo.");
-        }
-    }
-
 
     private void SaltoPared()
     {
-        if (enPared)
-        {
-            enPared = false;
-            IsJumping = true;
-            salto = true;
-            rb2D.velocity = new Vector2(fuerzaSaltoParedX * (mirandoDerecha ? -1 : 1), fuerzaSaltoParedY);
-            StartCoroutine(CambioSaltoPared());
-        }
+        enPared = false;
+        saltandoDePared = true;
+        rb2D.velocity = new Vector2(fuerzaSaltoParedX * (mirandoDerecha ? -1 : 1), fuerzaSaltoParedY);
+        StartCoroutine(CambioSaltoPared());
     }
 
     private IEnumerator CambioSaltoPared()
     {
-        saltandoDePared = true;
-        yield return new WaitForSeconds(tiempoSaltoPared);
+        yield return new WaitForSeconds(0.2f);
         saltandoDePared = false;
     }
 
     private IEnumerator Dash()
     {
-        sePuedeMover = false;
         puedeHacerDash = false;
-        rb2D.gravityScale = 0;
-        rb2D.velocity = new Vector2(velocidadDash * transform.localScale.x, 0);
-        animator.SetTrigger("Dash");
-
+        rb2D.velocity = new Vector2(velocidadDash * (mirandoDerecha ? 1 : -1), rb2D.velocity.y);
         yield return new WaitForSeconds(tiempoDash);
-
-        sePuedeMover = true;
+        yield return new WaitForSeconds(4f); // Tiempo de espera para volver a usar el Dash
         puedeHacerDash = true;
-        rb2D.gravityScale = gravedadInicial;
     }
 
     private void Girar()
@@ -204,17 +163,12 @@ public class ControladorJugador : MonoBehaviour
 
     private void OnDrawGizmos()
     {
+        // Visualizar áreas de detección
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireCube(controladorSuelo.position, dimensionesCaja);
         Gizmos.color = Color.blue;
-        if (controladorParedIzquierda != null)
-        {
-            Gizmos.DrawWireCube(controladorParedIzquierda.position, controladorParedIzquierda.GetComponent<BoxCollider2D>().size);
-        }
-        if (controladorParedDerecha != null)
-        {
-            Gizmos.DrawWireCube(controladorParedDerecha.position, controladorParedDerecha.GetComponent<BoxCollider2D>().size);
-        }
+        Gizmos.DrawWireCube(controladorParedIzquierda.position, dimensionesCajaPared);
+        Gizmos.DrawWireCube(controladorParedDerecha.position, dimensionesCajaPared);
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -223,18 +177,15 @@ public class ControladorJugador : MonoBehaviour
         if (((1 << collision.gameObject.layer) & queEsSuelo) != 0)
         {
             enSuelo = true;
-            salto = false; // Resetea el estado de salto
-            Debug.Log("Jugador tocó el suelo.");
         }
 
         // Detectar colisión con enemigos
-        if (collision.CompareTag("Enemy"))
+        if (collision.CompareTag("Enemy") && !isInvulnerable)
         {
-            RecibirDanio(1);
+            RecibirDanio(10); // Aplica 10 de daño
+            StartCoroutine(InvulnerabilityCoroutine());
         }
     }
-
-
 
     public void RecibirDanio(int danio)
     {
@@ -244,38 +195,16 @@ public class ControladorJugador : MonoBehaviour
         }
         else
         {
-            Debug.LogError("GameManager instance is not set.");
+            Debug.LogError("GameManager.Instance no está configurado.");
         }
     }
+
 
     private IEnumerator InvulnerabilityCoroutine()
     {
-        isInvulnerable = true;
-        yield return new WaitForSeconds(invulnerabilityDuration);
-        isInvulnerable = false;
+        isInvulnerable = true; // El jugador es invulnerable
+        yield return new WaitForSeconds(invulnerabilityDuration); // Espera la duración configurada
+        isInvulnerable = false; // El jugador puede volver a recibir daño
     }
 
-    #region ConfiguracionEditor
-
-    // Método para ajustar el tamaño del collider del suelo y paredes desde el editor
-    private void OnValidate()
-    {
-        // Ajusta el tamaño del collider del suelo
-        if (controladorSuelo != null)
-        {
-            controladorSuelo.localScale = dimensionesCaja;
-        }
-
-        // Ajusta el tamaño del collider de las paredes izquierda y derecha
-        if (controladorParedIzquierda != null)
-        {
-            controladorParedIzquierda.localScale = controladorParedIzquierda.GetComponent<BoxCollider2D>().size;
-        }
-        if (controladorParedDerecha != null)
-        {
-            controladorParedDerecha.localScale = controladorParedDerecha.GetComponent<BoxCollider2D>().size;
-        }
-    }
-
-    #endregion
 }

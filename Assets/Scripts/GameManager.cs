@@ -6,9 +6,9 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
 
-    public HUD hud;
+    public HUD hud; // Referencia al HUD que controla las vidas en pantalla
 
-    private int vidas = 3;
+    private int vidas = 3; // Número de vidas restantes
 
     private void Awake()
     {
@@ -27,18 +27,20 @@ public class GameManager : MonoBehaviour
     {
         if (hud == null)
         {
-            Debug.LogError("HUD is not assigned in GameManager.");
+            Debug.LogError("HUD no asignado en GameManager.");
             return;
         }
 
         if (vidas > 0)
         {
-            vidas -= 1;
-            hud.DesactivarVida(vidas);
+            vidas -= 1; // Resta una vida
+            Debug.Log("Vida restante: " + vidas);
+
+            hud.DesactivarVida(vidas); // Actualiza el HUD para desactivar el corazón correspondiente
 
             if (vidas <= 0)
             {
-                SceneManager.LoadScene("Muerte");
+                SceneManager.LoadScene("Muerte"); // Cambia a la escena de muerte si ya no hay vidas
             }
         }
     }

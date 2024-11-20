@@ -19,10 +19,16 @@ public class Fireball : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.CompareTag("Player")) // Si colisiona con el jugador
+        ControladorJugador jugador = collision.gameObject.GetComponent<ControladorJugador>();
+        if (jugador != null)
         {
-            collision.GetComponent<ControladorJugador>()?.RecibirDanio(1);
-            Destroy(gameObject); // Destruye la bola de fuego tras impactar al jugador
+            Debug.Log("Jugador impactado por Fireball.");
+            jugador.RecibirDanio(1); // Aplica 1 de daño al jugador
+            Destroy(gameObject); // Destruye la bola de fuego después de impactar al jugador
+        }
+        else
+        {
+            Debug.Log("La Fireball impactó con algo que no es el jugador.");
         }
     }
 }
