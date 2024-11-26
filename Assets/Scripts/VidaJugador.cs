@@ -12,7 +12,7 @@ public class VidaJugador : MonoBehaviour
     private void Start()
     {
         vidaActual = vidaMaxima;
-        ActualizarBarraDeVida();
+        
     }
 
     public void RecibirDanio(float cantidadDanio)
@@ -23,14 +23,7 @@ public class VidaJugador : MonoBehaviour
             vidaActual = 0;
             Morir();
         }
-        ActualizarBarraDeVida();
-    }
-
-    public void Curar(float cantidadCuracion)
-    {
-        vidaActual += cantidadCuracion;
-        vidaActual = Mathf.Min(vidaActual, vidaMaxima); // Limitar la vida máxima
-        ActualizarBarraDeVida();
+        
     }
 
     private void Morir()
@@ -42,8 +35,5 @@ public class VidaJugador : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    private void ActualizarBarraDeVida()
-    {
-        barraDeVida.fillAmount = vidaActual / vidaMaxima;
-    }
+   
 }

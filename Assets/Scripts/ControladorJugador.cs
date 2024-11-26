@@ -80,11 +80,12 @@ public class ControladorJugador : MonoBehaviour
             SaltoPared();
         }
 
-        // Dash
+        /* Dash
         if (Input.GetKeyDown(KeyCode.B) && puedeHacerDash)
         {
             StartCoroutine(Dash());
         }
+        */
     }
 
     private void FixedUpdate()
@@ -115,11 +116,11 @@ public class ControladorJugador : MonoBehaviour
             rb2D.velocity = Vector3.SmoothDamp(rb2D.velocity, velocidadObjetivo, ref velocidad, suavizadoDeMovimiento);
         }
 
-        if (mover > 0 && !mirandoDerecha)
+        if (mover < 0 && !mirandoDerecha)
         {
             Girar();
         }
-        else if (mover < 0 && mirandoDerecha)
+        else if (mover > 0 && mirandoDerecha)
         {
             Girar();
         }
