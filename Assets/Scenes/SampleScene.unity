@@ -1386,6 +1386,9 @@ MonoBehaviour:
     m_Bits: 8
   controladorSuelo: {fileID: 1626862722}
   dimensionesCaja: {x: 0, y: 0, z: 0}
+  jumpSound: {fileID: 8300000, guid: b69e31178888e78428fc3d14182ca042, type: 3}
+  finishSound: {fileID: 8300000, guid: cea2968365007dc4c8041048f1aa7703, type: 3}
+  dieSound: {fileID: 8300000, guid: 7da6a22a7a43e98459bfb2ddeca932a0, type: 3}
   controladorParedIzquierda: {fileID: 1838348030}
   controladorParedDerecha: {fileID: 1612753925}
   dimensionesCajaPared: {x: 0.5, y: 1, z: 0}
@@ -5665,6 +5668,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7cac6e5ac2f039f46b2e04ba78a69e28, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  dieSound: {fileID: 0}
 --- !u!23 &861031932
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -7070,6 +7074,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: af371ce47ecd0a44ba4e114101b1e16d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  finishSound: {fileID: 0}
 --- !u!61 &1569548467
 BoxCollider2D:
   m_ObjectHideFlags: 0
