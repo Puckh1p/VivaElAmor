@@ -1,37 +1,54 @@
 using UnityEngine;
-using System.Collections.Generic;
+using System.Collections.Generic; // Para usar listas
 
+// Este script genera productos en intervalos definidos
 public class Spawner : MonoBehaviour
 {
-    [SerializeField] private Factory factory; // Asignar la Factory desde el Inspector
-    [SerializeField] private int maxFireballs = 7; // Máximo de instancias
-    [SerializeField] private float spawnInterval = 1f; // Intervalo de generación
+    // Campo para asignar una referencia a un objeto que implemente IFactoryInterface
+    [SerializeField] private MonoBehaviour factoryInterface;
 
-    private List<GameObject> fireballs = new List<GameObject>(); // Lista para rastrear bolas activas
+    // Máximo número de productos que pueden estar activos simultáneamente
+    [SerializeField] private int maxFireballs = 7;
 
+    // Intervalo de tiempo (en segundos) entre cada generación
+    [SerializeField] private float spawnInterval = 1f;
+
+    // Referencia interna a la fábrica a través de la interfaz
+    private IFactoryInterface factory;
+
+    // Lista para rastrear los productos generados
+    private List<GameObject> fireballs = new List<GameObject>();
+
+    // Método que se llama al inicio
     private void Start()
     {
+        // Convierte factoryInterface a un objeto que implemente IFactoryInterface
+        factory = factoryInterface as IFactoryInterface;
+
+        // Si factory no implementa la interfaz, muestra un error
         if (factory == null)
         {
-            Debug.LogError("Factory no está asignada en el Inspector.");
+            Debug.LogError("El objeto asignado no implementa IFactoryInterface.");
             return;
         }
 
+        // Llama repetidamente al método SpawnFireball en intervalos definidos
         InvokeRepeating(nameof(SpawnFireball), 0f, spawnInterval);
     }
 
+    // Método que genera un producto
     private void SpawnFireball()
     {
-        // Elimina referencias a objetos destruidos
+        // Limpia la lista eliminando referencias a objetos destruidos
         fireballs.RemoveAll(fireball => fireball == null);
 
-        // Verifica si ya se alcanzó el número máximo de bolas de fuego
+        // Si ya se alcanzó el número máximo de productos, no genera más
         if (fireballs.Count >= maxFireballs) return;
 
-        // Crear una nueva bola de fuego
-        GameObject fireball = factory.CreateProduct("A", transform.position);
+        // Solicita un producto de tipo "A" a la fábrica
+        GameObject fireball = factory.RequestProduct("A", transform.position);
 
-        // Asegúrate de añadirla a la lista
+        // Si el producto fue generado, lo añade a la lista
         if (fireball != null)
         {
             fireballs.Add(fireball);

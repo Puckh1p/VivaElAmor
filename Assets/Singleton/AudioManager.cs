@@ -6,22 +6,30 @@ public class AudioManager : MonoBehaviour
 
     public static AudioManager Instance { get; private set; }
 
+    private bool isMusicPlaying;
+
     private void Awake()
     {
-        if (Instance != null)
+        if (Instance == null)
         {
             Instance = this;
+            DontDestroyOnLoad(gameObject); // Mantén el objeto al cambiar de escena
         }
         else
         {
-        
-            Destroy(this);
-            DontDestroyOnLoad(this);
+            Destroy(gameObject); // Si ya existe una instancia, destruye este objeto
         }
     }
+
 
     public void PlaySound(AudioClip clip)
     {
         sfxAudioSource.PlayOneShot(clip);
+    }
+
+    public bool GetIsMusicPlaying()
+
+    {
+    return isMusicPlaying; 
     }
 }
