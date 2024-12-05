@@ -4,197 +4,195 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
+
 public class ControladorJugador : MonoBehaviour
 {
+    // Referencia al Rigidbody2D para manejar el movimiento físico
     private Rigidbody2D rb2D;
+
     [Header("Movimiento")]
-    private float inputX;
-    private float movimientoHorizontal = 0f;
-    [SerializeField] private float velocidadDeMovimiento;
-    [Range(0, 0.3f)][SerializeField] private float suavizadoDeMovimiento;
-    private Vector3 velocidad = Vector3.zero;
-    private bool mirandoDerecha = true;
+    private float inputX; // Entrada horizontal del jugador
+    private float movimientoHorizontal = 0f; // Velocidad calculada del movimiento
+    [SerializeField] private float velocidadDeMovimiento; // Velocidad base de movimiento
+    [Range(0, 0.3f)][SerializeField] private float suavizadoDeMovimiento; // Suavizado del movimiento para hacerlo más fluido
+    private Vector3 velocidad = Vector3.zero; // Usado para interpolar el movimiento
+    private bool mirandoDerecha = true; // Estado del jugador: si mira hacia la derecha o izquierda
 
     [Header("Salto")]
-    [SerializeField] private float fuerzaSalto;
-    [SerializeField] private LayerMask queEsSuelo;
-    [SerializeField] private Transform controladorSuelo;
-    [SerializeField] private Vector3 dimensionesCaja = new Vector3(0.5f, 0.1f, 0f);
-    [SerializeField] private AudioClip jumpSound, finishSound, dieSound;
+    [SerializeField] private float fuerzaSalto; // Fuerza del salto
+    [SerializeField] private LayerMask queEsSuelo; // Capa que define qué objetos son "suelo"
+    [SerializeField] private Transform controladorSuelo; // Posición para detectar si el jugador está en el suelo
+    [SerializeField] private Vector3 dimensionesCaja = new Vector3(0.5f, 0.1f, 0f); // Tamaño del área de detección de suelo
+    [SerializeField] private AudioClip jumpSound, finishSound, dieSound; // Clips de sonido para acciones del jugador
 
-    private bool enSuelo;
+    private bool enSuelo; // Indica si el jugador está tocando el suelo
 
     [Header("Salto en Pared")]
-    [SerializeField] private Transform controladorParedIzquierda;
-    [SerializeField] private Transform controladorParedDerecha;
-    [SerializeField] private Vector3 dimensionesCajaPared = new Vector3(0.5f, 1f, 0f);
-    [SerializeField] private float fuerzaSaltoParedX = 5f;
-    [SerializeField] private float fuerzaSaltoParedY = 5f;
-    private bool enPared;
-    private bool saltandoDePared = false;
+    [SerializeField] private Transform controladorParedIzquierda, controladorParedDerecha; // Puntos para detectar paredes
+    [SerializeField] private Vector3 dimensionesCajaPared = new Vector3(0.5f, 1f, 0f); // Tamaño del área de detección de paredes
+    [SerializeField] private float fuerzaSaltoParedX = 5f, fuerzaSaltoParedY = 5f; // Fuerza del salto en pared en ambos ejes
+    private bool enPared; // Indica si el jugador está tocando una pared
+    private bool saltandoDePared = false; // Indica si el jugador está realizando un salto en pared
 
     [Header("Dash")]
-    [SerializeField] private float velocidadDash;
-    [SerializeField] private float tiempoDash;
-    private float gravedadInicial;
-    private bool puedeHacerDash = true;
-    private bool sePuedeMover = true;
+    [SerializeField] private float velocidadDash; // Velocidad del Dash
+    [SerializeField] private float tiempoDash; // Duración del Dash
+    private float gravedadInicial; // Para restaurar la gravedad después del Dash
+    private bool puedeHacerDash = true; // Controla si el jugador puede hacer Dash
+    private bool sePuedeMover = true; // Controla si el jugador puede moverse
 
     [Header("Animacion")]
-    private Animator animator;
+    private Animator animator; // Controla las animaciones del jugador
 
     [Header("Vida")]
-    [SerializeField] private int vida = 100;
-    [SerializeField] private Slider barraDeVida;
+    [SerializeField] private int vida = 100; // Vida inicial del jugador
+    [SerializeField] private Slider barraDeVida; // Referencia a la barra de vida en la UI
 
-    private bool isInvulnerable = false;
-    [SerializeField] private float invulnerabilityDuration = 1f;
+    private bool isInvulnerable = false; // Controla si el jugador es invulnerable
+    [SerializeField] private float invulnerabilityDuration = 1f; // Duración de la invulnerabilidad
 
+    // Método Start: Inicializa las variables al comienzo del juego
     private void Start()
     {
-        rb2D = GetComponent<Rigidbody2D>();
-        animator = GetComponent<Animator>();
+        rb2D = GetComponent<Rigidbody2D>(); // Obtiene el componente Rigidbody2D
+        animator = GetComponent<Animator>(); // Obtiene el componente Animator
 
+        // Configura la barra de vida
         barraDeVida.maxValue = vida;
         barraDeVida.value = vida;
     }
 
+    // Método Update: Llamado en cada frame para manejar la entrada del jugador
     private void Update()
     {
-        // Movimiento
+        // Movimiento horizontal
         inputX = Input.GetAxisRaw("Horizontal");
         movimientoHorizontal = inputX * velocidadDeMovimiento;
 
-        // Animaciones
+        // Actualiza las animaciones de velocidad
         animator.SetFloat("VelocidadX", Mathf.Abs(rb2D.velocity.x));
         animator.SetFloat("VelocidadY", rb2D.velocity.y);
 
-        // Salto normal
+        // Detecta entrada de salto
         if (Input.GetKeyDown(KeyCode.Space) && enSuelo)
         {
-            Salto();
+            Salto(); // Ejecuta un salto normal
         }
 
-        // Salto en pared
+        // Detecta salto en pared
         if (Input.GetKeyDown(KeyCode.Space) && enPared && !enSuelo)
         {
-            SaltoPared();
+            SaltoPared(); // Ejecuta un salto desde una pared
         }
-
-        /* Dash
-        if (Input.GetKeyDown(KeyCode.B) && puedeHacerDash)
-        {
-            StartCoroutine(Dash());
-        }
-        */
     }
 
+    // Método FixedUpdate: Se usa para física y detección constante
     private void FixedUpdate()
     {
-        // Detectar si está en el suelo
+        // Detecta si está tocando el suelo
         enSuelo = Physics2D.OverlapBox(controladorSuelo.position, dimensionesCaja, 0f, queEsSuelo);
 
-        // Detectar si está en pared
+        // Detecta si está tocando una pared
         enPared = Physics2D.OverlapBox(controladorParedIzquierda.position, dimensionesCajaPared, 0f, queEsSuelo) ||
                   Physics2D.OverlapBox(controladorParedDerecha.position, dimensionesCajaPared, 0f, queEsSuelo);
 
-        // Animaciones
+        // Actualiza animaciones
         animator.SetBool("enSuelo", enSuelo);
         animator.SetBool("enPared", enPared);
 
-        // Movimiento
+        // Movimiento del jugador
         if (sePuedeMover)
         {
             Mover(movimientoHorizontal * Time.fixedDeltaTime);
         }
     }
 
+    // Método para manejar el movimiento del jugador
     private void Mover(float mover)
     {
-        if (!saltandoDePared)
+        if (!saltandoDePared) // Si no está saltando de una pared
         {
+            // Suaviza el movimiento del jugador
             Vector3 velocidadObjetivo = new Vector2(mover, rb2D.velocity.y);
             rb2D.velocity = Vector3.SmoothDamp(rb2D.velocity, velocidadObjetivo, ref velocidad, suavizadoDeMovimiento);
         }
 
+        // Verifica y ajusta la dirección del jugador
         if (mover < 0 && !mirandoDerecha)
         {
-            Girar();
+            Girar(); // Cambia a mirar hacia la izquierda
         }
         else if (mover > 0 && mirandoDerecha)
         {
-            Girar();
+            Girar(); // Cambia a mirar hacia la derecha
         }
     }
 
+    // Método para manejar el salto normal
     private void Salto()
     {
-        rb2D.velocity = new Vector2(rb2D.velocity.x, fuerzaSalto);
-        AudioManager.Instance.PlaySound(jumpSound);
+        rb2D.velocity = new Vector2(rb2D.velocity.x, fuerzaSalto); // Aplica fuerza hacia arriba
+        //AudioManager.Instance.PlaySound(jumpSound); // Reproduce el sonido de salto
     }
 
+    // Método para manejar el salto en pared
     private void SaltoPared()
     {
-        enPared = false;
-        saltandoDePared = true;
-        rb2D.velocity = new Vector2(fuerzaSaltoParedX * (mirandoDerecha ? -1 : 1), fuerzaSaltoParedY);
-        StartCoroutine(CambioSaltoPared());
+        enPared = false; // Ya no está en pared
+        saltandoDePared = true; // Inicia el salto desde la pared
+        rb2D.velocity = new Vector2(fuerzaSaltoParedX * (mirandoDerecha ? -1 : 1), fuerzaSaltoParedY); // Aplica fuerza
+        StartCoroutine(CambioSaltoPared()); // Espera antes de permitir otro movimiento
     }
 
+    // Coroutine para manejar el estado de salto desde la pared
     private IEnumerator CambioSaltoPared()
     {
-        yield return new WaitForSeconds(0.2f);
-        saltandoDePared = false;
+        yield return new WaitForSeconds(0.2f); // Espera 0.2 segundos
+        saltandoDePared = false; // Permite movimiento normal
     }
 
-    private IEnumerator Dash()
-    {
-        puedeHacerDash = false;
-        rb2D.velocity = new Vector2(velocidadDash * (mirandoDerecha ? 1 : -1), rb2D.velocity.y);
-        yield return new WaitForSeconds(tiempoDash);
-        yield return new WaitForSeconds(4f); // Tiempo de espera para volver a usar el Dash
-        puedeHacerDash = true;
-    }
-
+    // Método para girar al jugador horizontalmente
     private void Girar()
     {
-        mirandoDerecha = !mirandoDerecha;
+        mirandoDerecha = !mirandoDerecha; // Cambia el estado
         Vector3 escala = transform.localScale;
-        escala.x *= -1;
+        escala.x *= -1; // Invierte la dirección
         transform.localScale = escala;
     }
 
+    // Método para dibujar Gizmos en el editor
     private void OnDrawGizmos()
     {
-        // Visualizar áreas de detección
         Gizmos.color = Color.yellow;
-        Gizmos.DrawWireCube(controladorSuelo.position, dimensionesCaja);
+        Gizmos.DrawWireCube(controladorSuelo.position, dimensionesCaja); // Visualiza el área de suelo
         Gizmos.color = Color.blue;
-        Gizmos.DrawWireCube(controladorParedIzquierda.position, dimensionesCajaPared);
-        Gizmos.DrawWireCube(controladorParedDerecha.position, dimensionesCajaPared);
+        Gizmos.DrawWireCube(controladorParedIzquierda.position, dimensionesCajaPared); // Visualiza el área de la pared izquierda
+        Gizmos.DrawWireCube(controladorParedDerecha.position, dimensionesCajaPared); // Visualiza el área de la pared derecha
     }
 
+    // Método para manejar la colisión con triggers
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        // Detectar si el objeto que entra al trigger es el suelo
+        // Detecta si el objeto es parte del suelo
         if (((1 << collision.gameObject.layer) & queEsSuelo) != 0)
         {
             enSuelo = true;
         }
 
-        // Detectar colisión con enemigos
+        // Detecta si colisiona con un enemigo
         if (collision.CompareTag("Enemy") && !isInvulnerable)
         {
-            RecibirDanio(10); // Aplica 10 de daño
-            StartCoroutine(InvulnerabilityCoroutine());
+            RecibirDanio(10); // Aplica daño al jugador
+            StartCoroutine(InvulnerabilityCoroutine()); // Inicia invulnerabilidad temporal
         }
     }
 
+    // Método para recibir daño
     public void RecibirDanio(int danio)
     {
         if (GameManager.Instance != null)
         {
-            GameManager.Instance.PerderVida();
+            GameManager.Instance.PerderVida(); // Reduce la vida desde el GameManager
         }
         else
         {
@@ -202,17 +200,17 @@ public class ControladorJugador : MonoBehaviour
         }
     }
 
+    // Método para reproducir el sonido de muerte
     private void Die()
     {
         AudioManager.Instance.PlaySound(dieSound);
     }
 
-
+    // Coroutine para manejar invulnerabilidad temporal
     private IEnumerator InvulnerabilityCoroutine()
     {
-        isInvulnerable = true; // El jugador es invulnerable
+        isInvulnerable = true; // Activa la invulnerabilidad
         yield return new WaitForSeconds(invulnerabilityDuration); // Espera la duración configurada
-        isInvulnerable = false; // El jugador puede volver a recibir daño
+        isInvulnerable = false; // Desactiva la invulnerabilidad
     }
-
 }

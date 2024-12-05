@@ -6,16 +6,19 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
 
-    public HUD hud; // Referencia al HUD que controla las vidas en pantalla
+    public HUD hud; // Referencia al HUD
 
-    private int vidas = 3; // Número de vidas restantes
+    private int vidas = 3; // Número de vidas del jugador
+
+    // Lista de observadores
+    private List<IObserver> observers = new List<IObserver>();
 
     private void Awake()
     {
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject); // Mantener el GameManager entre escenas
+            DontDestroyOnLoad(gameObject);
         }
         else
         {
@@ -23,24 +26,43 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    // Métodos para gestionar observadores
+    public void AddObserver(IObserver observer)
+    {
+        if (!observers.Contains(observer))
+        {
+            observers.Add(observer);
+        }
+    }
+
+    public void RemoveObserver(IObserver observer)
+    {
+        if (observers.Contains(observer))
+        {
+            observers.Remove(observer);
+        }
+    }
+
+    // Método para notificar a todos los observadores
+    private void NotifyObservers()
+    {
+        foreach (var observer in observers)
+        {
+            observer.OnNotify(vidas);
+        }
+    }
+
+    // Método para manejar la pérdida de vida del jugador
     public void PerderVida()
     {
-        if (hud == null)
-        {
-            Debug.LogError("HUD no asignado en GameManager.");
-            return;
-        }
-
         if (vidas > 0)
         {
-            vidas -= 1; // Resta una vida
-            Debug.Log("Vida restante: " + vidas);
-
-            hud.DesactivarVida(vidas); // Actualiza el HUD para desactivar el corazón correspondiente
+            vidas--;
+            NotifyObservers(); // Notifica a los observadores sobre el cambio
 
             if (vidas <= 0)
             {
-                SceneManager.LoadScene("Muerte"); // Cambia a la escena de muerte si ya no hay vidas
+                SceneManager.LoadScene("Muerte"); // Cambia a la escena de muerte
             }
         }
     }

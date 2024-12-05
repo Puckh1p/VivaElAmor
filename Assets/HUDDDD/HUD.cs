@@ -1,24 +1,32 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class HUD : MonoBehaviour
+public class HUD : MonoBehaviour, IObserver
 {
     public GameObject[] vidas;
 
-    public void DesactivarVida(int indice)
+    public void OnNotify(int vidasRestantes)
     {
-        if (indice >= 0 && indice < vidas.Length)
+        for (int i = 0; i < vidas.Length; i++)
         {
-            vidas[indice].SetActive(false);
+            vidas[i].SetActive(i < vidasRestantes);
         }
     }
 
-    public void ActivarVida(int indice)
+    private void Start()
     {
-        if (indice >= 0 && indice < vidas.Length)
+        // Registra el HUD como observador del GameManager
+        if (GameManager.Instance != null)
         {
-            vidas[indice].SetActive(true);
+            GameManager.Instance.AddObserver(this);
+        }
+    }
+
+    private void OnDestroy()
+    {
+        // Remueve el HUD como observador al destruirse
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.RemoveObserver(this);
         }
     }
 }
