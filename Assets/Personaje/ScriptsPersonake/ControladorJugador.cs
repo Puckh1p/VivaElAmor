@@ -27,6 +27,12 @@ public class ControladorJugador : MonoBehaviour
     private int saltosRestantes;
     [SerializeField] private int maxSaltos = 2;
 
+    [Header("Salto Prolongado")]
+    [SerializeField] private float fuerzaAdicionalSalto = 5f; // Fuerza adicional para el salto prolongado
+    [SerializeField] private float duracionSaltoProlongado = 0.2f; // Duración máxima del salto prolongado
+    private float tiempoSaltoProlongado; // Temporizador para controlar el salto prolongado
+    private bool estaSaltando; // Indica si el jugador está realizando un salto
+
     [Header("Dash")]
     [SerializeField] private float velocidadDash = 40f;
     [SerializeField] private float tiempoDash = 0.2f;
@@ -58,17 +64,39 @@ public class ControladorJugador : MonoBehaviour
 
     private void Update()
     {
+        // Entrada horizontal y animaciones
         inputX = Input.GetAxisRaw("Horizontal");
         movimientoHorizontal = inputX * velocidadDeMovimiento;
 
         animator.SetFloat("VelocidadX", Mathf.Abs(rb2D.velocity.x));
         animator.SetFloat("VelocidadY", rb2D.velocity.y);
 
+        // Detectar inicio del salto
         if (Input.GetKeyDown(KeyCode.Space) && (saltosRestantes > 0 || coyoteTimeController.PuedeSaltar))
         {
             Salto();
+            estaSaltando = true;
+            tiempoSaltoProlongado = 0; // Reinicia el temporizador
         }
 
+        // Detectar salto prolongado
+        if (Input.GetKey(KeyCode.Space) && estaSaltando)
+        {
+            if (tiempoSaltoProlongado < duracionSaltoProlongado)
+            {
+                // Aplica fuerza adicional mientras se mantiene presionada la tecla
+                rb2D.velocity = new Vector2(rb2D.velocity.x, fuerzaSalto + fuerzaAdicionalSalto);
+                tiempoSaltoProlongado += Time.deltaTime;
+            }
+        }
+
+        // Detectar si se deja de presionar la tecla o el tiempo del salto prolongado se termina
+        if (Input.GetKeyUp(KeyCode.Space) || tiempoSaltoProlongado >= duracionSaltoProlongado)
+        {
+            estaSaltando = false; // Finaliza el salto prolongado
+        }
+
+        // Dash
         if (Input.GetKeyDown(KeyCode.E) && puedeHacerDash)
         {
             StartCoroutine(Dash());
@@ -82,7 +110,7 @@ public class ControladorJugador : MonoBehaviour
         if (enSuelo)
         {
             coyoteTimeController.ResetCoyoteTime(); // Reset desde el script externo
-            saltosRestantes = maxSaltos;  // Reset de saltos al tocar el suelo
+            saltosRestantes = maxSaltos; // Reset de saltos al tocar el suelo
         }
         else
         {
@@ -102,11 +130,11 @@ public class ControladorJugador : MonoBehaviour
         Vector3 velocidadObjetivo = new Vector2(mover, rb2D.velocity.y);
         rb2D.velocity = Vector3.SmoothDamp(rb2D.velocity, velocidadObjetivo, ref velocidad, suavizadoDeMovimiento);
 
-        if (mover < 0 && !mirandoDerecha)
+        if (mover > 0 && !mirandoDerecha)
         {
             Girar();
         }
-        else if (mover > 0 && mirandoDerecha)
+        else if (mover < 0 && mirandoDerecha)
         {
             Girar();
         }
@@ -116,7 +144,7 @@ public class ControladorJugador : MonoBehaviour
     {
         rb2D.velocity = new Vector2(rb2D.velocity.x, fuerzaSalto);
         saltosRestantes--;
-        //AudioManager.Instance.PlaySound(jumpSound);
+        //AudioManager.Instance.PlaySound(jumpSound); // Reproduce el sonido de salto
     }
 
     private IEnumerator Dash()
