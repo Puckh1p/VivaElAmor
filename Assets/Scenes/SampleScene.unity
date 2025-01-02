@@ -779,6 +779,7 @@ GameObject:
   - component: {fileID: 559027382}
   - component: {fileID: 559027383}
   - component: {fileID: 559027384}
+  - component: {fileID: 559027385}
   m_Layer: 7
   m_Name: Player
   m_TagString: Player
@@ -966,7 +967,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   velocidadDeMovimiento: 300
   suavizadoDeMovimiento: 0.03
-  fuerzaSalto: 8
+  fuerzaSalto: 7
   queEsSuelo:
     serializedVersion: 2
     m_Bits: 8
@@ -975,16 +976,14 @@ MonoBehaviour:
   jumpSound: {fileID: 8300000, guid: b69e31178888e78428fc3d14182ca042, type: 3}
   finishSound: {fileID: 8300000, guid: cea2968365007dc4c8041048f1aa7703, type: 3}
   dieSound: {fileID: 8300000, guid: 7da6a22a7a43e98459bfb2ddeca932a0, type: 3}
-  controladorParedIzquierda: {fileID: 1838348030}
-  controladorParedDerecha: {fileID: 1612753925}
-  dimensionesCajaPared: {x: 0.5, y: 1, z: 0}
-  fuerzaSaltoParedX: 10
-  fuerzaSaltoParedY: 10
-  velocidadDash: 3
+  maxSaltos: 2
+  velocidadDash: 10
   tiempoDash: 0.4
+  cooldownDash: 3
   vida: 100
   barraDeVida: {fileID: 1554554165}
   invulnerabilityDuration: 1
+  coyoteTimeController: {fileID: 559027385}
 --- !u!114 &559027384
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1004,6 +1003,19 @@ MonoBehaviour:
   jugadorLayer:
     serializedVersion: 2
     m_Bits: 128
+--- !u!114 &559027385
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 559027375}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8cee8be4cc9fd4e4396c5794a5e389b0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  coyoteTimeDuration: 0.15
 --- !u!1 &724825007
 GameObject:
   m_ObjectHideFlags: 0
